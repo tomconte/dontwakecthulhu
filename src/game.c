@@ -21,7 +21,8 @@ extern const unsigned char virus_0[64];
 extern const unsigned char virus_1[64];
 extern const unsigned char virus_2[64];
 
-// extern const unsigned char bitmap_background[924];
+extern const unsigned char bitmap_background_left[1561];
+extern const unsigned char bitmap_background_right[5082];
 
 // Define ROM routines
 void rom_cls();
@@ -99,17 +100,30 @@ void delete_sprite(unsigned char x, unsigned char y)
 }
 
 // Draw the background; the bitmap is 61 bytes wide and 231 lines high
-void draw_background()
+void draw_background_left()
 {
-    // unsigned char i, j;
+    unsigned char i, j;
 
-    // for (i = 0; i < 231; i++)
-    // {
-    //     for (j = 0; j < 61; j++)
-    //     {
-    //         POKE(0xc000 + j + i * 64, bitmap_background[i * 61 + j]);
-    //     }
-    // }
+    for (i = 0; i < 223; i++)
+    {
+        for (j = 0; j < 7; j++)
+        {
+            POKE(0xc000 + j + i * 64, bitmap_background_left[i * 7 + j]);
+        }
+    }
+}
+
+void draw_background_right()
+{
+    unsigned char i, j;
+
+    for (i = 0; i < 231; i++)
+    {
+        for (j = 0; j < 22; j++)
+        {
+            POKE(0xc000 + j + i * 64 + 39, bitmap_background_right[i * 22 + j]);
+        }
+    }
 }
 
 // Just a test routine to display all pill combinations
@@ -689,7 +703,8 @@ void main()
 {
     rom_cls();
     set_palette();
-    draw_background();
+    draw_background_left();
+    draw_background_right();
 
     // test_pills();
 
