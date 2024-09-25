@@ -384,7 +384,7 @@ void clear_lines(void)
                         if (board[read * BOARD_WIDTH + x].connected == CONNECTED_RIGHT && x < BOARD_WIDTH - 1)
                         {
                             // Pill connected to the right
-                            if (read < write && board[read * BOARD_WIDTH + x + 1].color == EMPTY)
+                            if (read < write && board[(read + 1) * BOARD_WIDTH + x + 1].color == EMPTY)
                             {
                                 board[write * BOARD_WIDTH + x] = board[read * BOARD_WIDTH + x];
                                 board[write * BOARD_WIDTH + x + 1] = board[read * BOARD_WIDTH + x + 1];
@@ -400,8 +400,8 @@ void clear_lines(void)
                         else if (board[read * BOARD_WIDTH + x].connected == CONNECTED_LEFT && x > 0)
                         {
                             // Pill connected to the left (do nothing, it was handled in the previous iteration)
-                            write--;
                             read--;
+                            write = read;
                         }
                         else if (board[read * BOARD_WIDTH + x].connected == CONNECTED_UP && read > 0)
                         {
@@ -421,8 +421,8 @@ void clear_lines(void)
                         else if (board[read * BOARD_WIDTH + x].connected == CONNECTED_DOWN)
                         {
                             // Pill connected downwards (do nothing, it was handled in the previous iteration)
-                            write--;
                             read--;
+                            write = read;
                         }
                         else
                         {
