@@ -126,32 +126,6 @@ void draw_background_right()
     }
 }
 
-// Just a test routine to display all pill combinations
-void test_pills()
-{
-    unsigned char i, j;
-
-    // Display all combinations of pills with left/right parts
-    for (i = 0; i < 3; i++)
-    {
-        for (j = 0; j < 3; j++)
-        {
-            draw_sprite(pill_left[i], 7 + j * 8, i * 16);
-            draw_sprite(pill_right[j], 7 + j * 8 + 4, i * 16);
-        }
-    }
-
-    // Now display all combinations of pills with top/bottom parts
-    for (i = 0; i < 3; i++)
-    {
-        for (j = 0; j < 3; j++)
-        {
-            draw_sprite(pill_top[i], 7 + j * 8, i * 32 + 64);
-            draw_sprite(pill_bottom[j], 7 + j * 8, i * 32 + 64 + 16);
-        }
-    }
-}
-
 /* Various utility methods for Hector */
 
 unsigned char __rand;
