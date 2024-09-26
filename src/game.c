@@ -74,28 +74,28 @@ const unsigned char *virus[] = {
 // TODO: rewrite in assembly?
 void draw_sprite(const unsigned char *sprite, unsigned char x, unsigned char y)
 {
-    unsigned char i, j;
+    unsigned char i;
 
     for (i = 0; i < 16; i++)
     {
-        for (j = 0; j < 4; j++)
-        {
-            POKE(0xc000 + (x + j) + (y + i) * 64, sprite[i * 4 + j]);
-        }
+        POKE(0xc000 + (x + 0) + (y + i) * 64, sprite[i * 4 + 0]);
+        POKE(0xc000 + (x + 1) + (y + i) * 64, sprite[i * 4 + 1]);
+        POKE(0xc000 + (x + 2) + (y + i) * 64, sprite[i * 4 + 2]);
+        POKE(0xc000 + (x + 3) + (y + i) * 64, sprite[i * 4 + 3]);
     }
 }
 
 // Delete a sprite from the screen by writing zeros
 void delete_sprite(unsigned char x, unsigned char y)
 {
-    unsigned char i, j;
+    unsigned char i;
 
     for (i = 0; i < 16; i++)
     {
-        for (j = 0; j < 4; j++)
-        {
-            POKE(0xc000 + (x + j) + (y + i) * 64, 0);
-        }
+        POKE(0xc000 + (x + 0) + (y + i) * 64, 0);
+        POKE(0xc000 + (x + 1) + (y + i) * 64, 0);
+        POKE(0xc000 + (x + 2) + (y + i) * 64, 0);
+        POKE(0xc000 + (x + 3) + (y + i) * 64, 0);
     }
 }
 
