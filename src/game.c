@@ -254,12 +254,14 @@ void clear_lines(void)
         {
             for (x = 0; x < BOARD_WIDTH; x++)
             {
-                if (board[y * BOARD_WIDTH + x].color == EMPTY)
+                unsigned char index = y * BOARD_WIDTH + x;
+
+                if (board[index].color == EMPTY)
                     continue;
 
                 len = 1;
                 while (x + len < BOARD_WIDTH &&
-                       colors_match(board[y * BOARD_WIDTH + x].color, board[y * BOARD_WIDTH + x + len].color))
+                       colors_match(board[index].color, board[index + len].color))
                 {
                     len++;
                 }
@@ -268,7 +270,7 @@ void clear_lines(void)
                 {
                     for (unsigned char i = 0; i < len; i++)
                     {
-                        to_clear[y * BOARD_WIDTH + x + i] = 1;
+                        to_clear[index + i] = 1;
                     }
                     cleared = 1;
                 }
@@ -280,12 +282,14 @@ void clear_lines(void)
         {
             for (y = 0; y < BOARD_HEIGHT; y++)
             {
-                if (board[y * BOARD_WIDTH + x].color == EMPTY)
+                unsigned char index = y * BOARD_WIDTH + x;
+
+                if (board[index].color == EMPTY)
                     continue;
 
                 len = 1;
                 while (y + len < BOARD_HEIGHT &&
-                       colors_match(board[y * BOARD_WIDTH + x].color, board[(y + len) * BOARD_WIDTH + x].color))
+                       colors_match(board[index].color, board[(y + len) * BOARD_WIDTH + x].color))
                 {
                     len++;
                 }
@@ -308,30 +312,32 @@ void clear_lines(void)
             {
                 for (x = 0; x < BOARD_WIDTH; x++)
                 {
-                    if (to_clear[y * BOARD_WIDTH + x])
+                    unsigned char index = y * BOARD_WIDTH + x;
+
+                    if (to_clear[index])
                     {
-                        if (is_virus(board[y * BOARD_WIDTH + x].color))
+                        if (is_virus(board[index].color))
                         {
                             virus_count--;
                         }
                         
                         // Mark pill halves as isolated
-                        if (board[y * BOARD_WIDTH + x].connected == CONNECTED_RIGHT) {
-                            board[y * BOARD_WIDTH + x + 1].connected = CONNECTED_NONE;
-                        } else if (board[y * BOARD_WIDTH + x].connected == CONNECTED_LEFT) {
-                            board[y * BOARD_WIDTH + x - 1].connected = CONNECTED_NONE;
-                        } else if (board[y * BOARD_WIDTH + x].connected == CONNECTED_UP) {
+                        if (board[index].connected == CONNECTED_RIGHT) {
+                            board[index + 1].connected = CONNECTED_NONE;
+                        } else if (board[index].connected == CONNECTED_LEFT) {
+                            board[index - 1].connected = CONNECTED_NONE;
+                        } else if (board[index].connected == CONNECTED_UP) {
                             board[(y - 1) * BOARD_WIDTH + x].connected = CONNECTED_NONE;
-                        } else if (board[y * BOARD_WIDTH + x].connected == CONNECTED_DOWN) {
+                        } else if (board[index].connected == CONNECTED_DOWN) {
                             board[(y + 1) * BOARD_WIDTH + x].connected = CONNECTED_NONE;
                         }
 
                         // Clear the cell
-                        board[y * BOARD_WIDTH + x].color = EMPTY;
-                        board[y * BOARD_WIDTH + x].connected = CONNECTED_NONE;
+                        board[index].color = EMPTY;
+                        board[index].connected = CONNECTED_NONE;
 
                         score += 100 * (chain + 1);
-                        to_clear[y * BOARD_WIDTH + x] = 0;
+                        to_clear[index] = 0;
                     }
                 }
             }
