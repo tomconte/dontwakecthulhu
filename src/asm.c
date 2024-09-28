@@ -23,9 +23,9 @@ void vsync()
 void set_palette()
 {
     __asm
-    ld hl, 01000h
+    ld hl, 0x1000
     ld (hl), 0x08    ; color0 = 0, color2 = 5
-    ld hl, 01800h
+    ld hl, 0x1800
     ld (hl), 0x3a    ; color1 = 2, color3 = 7
     __endasm;
 }

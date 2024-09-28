@@ -99,7 +99,6 @@ void delete_sprite(unsigned char x, unsigned char y)
     }
 }
 
-// Draw the background; the bitmap is 61 bytes wide and 231 lines high
 void draw_background_left()
 {
     unsigned char i, j;
