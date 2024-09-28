@@ -241,7 +241,7 @@ void render_game(void)
 
 void clear_lines(void)
 {
-    unsigned char x, y, len, cleared;
+    unsigned char x, y, len, cleared, fell;
     unsigned char chain = 0;
     unsigned char to_clear[BOARD_WIDTH * BOARD_HEIGHT] = {0};
 
@@ -323,7 +323,7 @@ void clear_lines(void)
                         } else if (board[y * BOARD_WIDTH + x].connected == CONNECTED_UP) {
                             board[(y - 1) * BOARD_WIDTH + x].connected = CONNECTED_NONE;
                         } else if (board[y * BOARD_WIDTH + x].connected == CONNECTED_DOWN) {
-                            board[(y + 1) * BOARD_WIDTH + x + 1].connected = CONNECTED_NONE;
+                            board[(y + 1) * BOARD_WIDTH + x].connected = CONNECTED_NONE;
                         }
 
                         // Clear the cell
@@ -336,96 +336,103 @@ void clear_lines(void)
                 }
             }
 
+            // Render game so we can see the changed pills
+            render_game();
+
             // Apply gravity to make pills fall
-            for (x = 0; x < BOARD_WIDTH; x++)
+            // If any piece falls; loop again to check for more hanging pieces
+            do
             {
-                unsigned char write = BOARD_HEIGHT - 1;
-                unsigned char read = BOARD_HEIGHT - 1;
-                while (read != 255)
+                fell = 0;
+
+                for (x = 0; x < BOARD_WIDTH; x++)
                 {
-                    if (is_virus(board[read * BOARD_WIDTH + x].color))
+                    unsigned char write = BOARD_HEIGHT - 1;
+                    unsigned char read = BOARD_HEIGHT - 1;
+                    while (read != 255)
                     {
-                        // Viruses don't fall
-                        // if (read != write)
-                        // {
-                        //     board[write * BOARD_WIDTH + x] = board[read * BOARD_WIDTH + x];
-                        // }
-                        read--;
-                        write = read;
-                    }
-                    else if (is_pill(board[read * BOARD_WIDTH + x].color))
-                    {
-                        if (board[read * BOARD_WIDTH + x].connected == CONNECTED_RIGHT && x < BOARD_WIDTH - 1)
+                        if (is_virus(board[read * BOARD_WIDTH + x].color))
                         {
-                            // Pill connected to the right
-                            if (read < write && board[(read + 1) * BOARD_WIDTH + x + 1].color == EMPTY)
-                            {
-                                board[write * BOARD_WIDTH + x] = board[read * BOARD_WIDTH + x];
-                                board[write * BOARD_WIDTH + x + 1] = board[read * BOARD_WIDTH + x + 1];
-                                board[read * BOARD_WIDTH + x].color = EMPTY;
-                                board[read * BOARD_WIDTH + x].connected = 0;
-                                board[read * BOARD_WIDTH + x + 1].color = EMPTY;
-                                board[read * BOARD_WIDTH + x + 1].connected = 0;
-                            }
-                            write--;
-                            read--;
-                            // x++; // Skip the next column as we've already moved it
-                        }
-                        else if (board[read * BOARD_WIDTH + x].connected == CONNECTED_LEFT && x > 0)
-                        {
-                            // Pill connected to the left (do nothing, it was handled in the previous iteration)
+                            // Viruses don't fall
                             read--;
                             write = read;
                         }
-                        else if (board[read * BOARD_WIDTH + x].connected == CONNECTED_UP && read > 0)
+                        else if (is_pill(board[read * BOARD_WIDTH + x].color))
                         {
-                            // Pill connected upwards
-                            if (read - 1 < write - 1)
+                            if (board[read * BOARD_WIDTH + x].connected == CONNECTED_RIGHT && x < BOARD_WIDTH - 1)
                             {
-                                board[write * BOARD_WIDTH + x] = board[read * BOARD_WIDTH + x];
-                                board[(write - 1) * BOARD_WIDTH + x] = board[(read - 1) * BOARD_WIDTH + x];
-                                board[read * BOARD_WIDTH + x].color = EMPTY;
-                                board[read * BOARD_WIDTH + x].connected = 0;
-                                board[(read - 1) * BOARD_WIDTH + x].color = EMPTY;
-                                board[(read - 1) * BOARD_WIDTH + x].connected = 0;
+                                // Pill connected to the right
+                                if (read < write && board[(read + 1) * BOARD_WIDTH + x + 1].color == EMPTY)
+                                {
+                                    // TODO: Need to check all the x+1 column cells between read and write, not just the next one
+                                    
+                                    board[write * BOARD_WIDTH + x] = board[read * BOARD_WIDTH + x];
+                                    board[write * BOARD_WIDTH + x + 1] = board[read * BOARD_WIDTH + x + 1];
+                                    board[read * BOARD_WIDTH + x].color = EMPTY;
+                                    board[read * BOARD_WIDTH + x].connected = 0;
+                                    board[read * BOARD_WIDTH + x + 1].color = EMPTY;
+                                    board[read * BOARD_WIDTH + x + 1].connected = 0;
+
+                                    fell = 1;
+                                }
+                                write--;
+                                read--;
                             }
-                            write -= 2;
-                            read -= 2;
-                        }
-                        else if (board[read * BOARD_WIDTH + x].connected == CONNECTED_DOWN)
-                        {
-                            // Pill connected downwards (do nothing, it was handled in the previous iteration)
-                            read--;
-                            write = read;
+                            else if (board[read * BOARD_WIDTH + x].connected == CONNECTED_LEFT && x > 0)
+                            {
+                                // Pill connected to the left (do nothing, it was handled in the previous iteration)
+                                read--;
+                                write = read;
+                            }
+                            else if (board[read * BOARD_WIDTH + x].connected == CONNECTED_UP && read > 0)
+                            {
+                                // Pill connected upwards
+                                if (read - 1 < write - 1)
+                                {
+                                    board[write * BOARD_WIDTH + x] = board[read * BOARD_WIDTH + x];
+                                    board[(write - 1) * BOARD_WIDTH + x] = board[(read - 1) * BOARD_WIDTH + x];
+                                    board[read * BOARD_WIDTH + x].color = EMPTY;
+                                    board[read * BOARD_WIDTH + x].connected = 0;
+                                    board[(read - 1) * BOARD_WIDTH + x].color = EMPTY;
+                                    board[(read - 1) * BOARD_WIDTH + x].connected = 0;
+
+                                    fell = 1;
+                                }
+                                write -= 2;
+                                read -= 2;
+                            }
+                            else if (board[read * BOARD_WIDTH + x].connected == CONNECTED_DOWN)
+                            {
+                                // Pill connected downwards (do nothing, it was handled in the previous iteration)
+                                read--;
+                                write = read;
+                            }
+                            else
+                            {
+                                // Single pill piece
+                                if (read < write)
+                                {
+                                    board[write * BOARD_WIDTH + x] = board[read * BOARD_WIDTH + x];
+                                    board[read * BOARD_WIDTH + x].color = EMPTY;
+                                    board[read * BOARD_WIDTH + x].connected = 0;
+
+                                    fell = 1;
+                                }
+                                write--;
+                                read--;
+                            }
                         }
                         else
                         {
-                            // Single pill piece
-                            if (read < write)
-                            {
-                                board[write * BOARD_WIDTH + x] = board[read * BOARD_WIDTH + x];
-                                board[read * BOARD_WIDTH + x].color = EMPTY;
-                                board[read * BOARD_WIDTH + x].connected = 0;
-                            }
-                            write--;
                             read--;
                         }
                     }
-                    else
-                    {
-                        read--;
-                    }
                 }
-                // Fill top with EMPTY cells
-                // while (write != 255)
-                // {
-                //     board[write * BOARD_WIDTH + x].color = EMPTY;
-                //     board[write * BOARD_WIDTH + x].connected = 0;
-                //     write--;
-                // }
 
+                // Render game so we can see the changed pills
                 render_game();
-            }
+
+            } while (fell);
 
             chain++;
         }
