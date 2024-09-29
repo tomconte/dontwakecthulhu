@@ -25,10 +25,12 @@ extern const unsigned char bitmap_background_left[1561];
 extern const unsigned char bitmap_background_right[5082];
 
 // Define ROM routines
-void rom_cls();
-unsigned char rom_ci();
-void set_palette();
-void vsync();
+extern void rom_cls();
+extern unsigned char rom_ci();
+extern void set_palette();
+extern void vsync();
+extern void draw_sprite(const unsigned char *sprite, unsigned char x, unsigned char y);
+extern void delete_sprite(unsigned char x, unsigned char y);
 
 // Array of pointers to bitmaps
 
@@ -69,35 +71,6 @@ const unsigned char *virus[] = {
     virus_0};
 
 /* Display routines for Hector */
-
-// Draw a sprite on the screen
-// TODO: rewrite in assembly?
-void draw_sprite(const unsigned char *sprite, unsigned char x, unsigned char y)
-{
-    unsigned char i;
-
-    for (i = 0; i < 16; i++)
-    {
-        POKE(0xc000 + (x + 0) + (y + i) * 64, sprite[i * 4 + 0]);
-        POKE(0xc000 + (x + 1) + (y + i) * 64, sprite[i * 4 + 1]);
-        POKE(0xc000 + (x + 2) + (y + i) * 64, sprite[i * 4 + 2]);
-        POKE(0xc000 + (x + 3) + (y + i) * 64, sprite[i * 4 + 3]);
-    }
-}
-
-// Delete a sprite from the screen by writing zeros
-void delete_sprite(unsigned char x, unsigned char y)
-{
-    unsigned char i;
-
-    for (i = 0; i < 16; i++)
-    {
-        POKE(0xc000 + (x + 0) + (y + i) * 64, 0);
-        POKE(0xc000 + (x + 1) + (y + i) * 64, 0);
-        POKE(0xc000 + (x + 2) + (y + i) * 64, 0);
-        POKE(0xc000 + (x + 3) + (y + i) * 64, 0);
-    }
-}
 
 void draw_background_left()
 {
