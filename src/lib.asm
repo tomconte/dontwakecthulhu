@@ -6,6 +6,13 @@ PUBLIC _vsync
 PUBLIC _set_palette
 PUBLIC _draw_sprite
 PUBLIC _delete_sprite
+PUBLIC _draw_background_left
+PUBLIC _draw_background_right
+PUBLIC _draw_background_btm
+
+EXTERN _bitmap_background_left
+EXTERN _bitmap_background_right
+EXTERN _bitmap_background_btm
 
 _rom_cls:
     call 0x0d2f
@@ -143,3 +150,90 @@ deleteloop:
     jr nz, deleteloop
 
     ret
+
+_draw_background_left:
+    ld b, 231          ; Set loop counter for rows (i = 0; i < 231; i++)
+    ld hl, _bitmap_background_left ; Load the address of bitmap_background_left into HL
+    ld de, 0xc000      ; Start address in video memory
+
+draw_background_left_row:
+    push bc            ; Save the row counter
+    ld c, 7            ; Set loop counter for columns (j = 0; j < 7; j++)
+
+draw_background_left_col:
+    ld a, (hl)         ; Load the next byte from bitmap_background_left
+    ld (de), a         ; Store it in video memory
+    inc hl             ; Move to the next byte in bitmap_background_left
+    inc de             ; Move to the next byte in video memory
+    dec c              ; Decrement column counter
+    jr nz, draw_background_left_col ; Repeat for all columns
+
+    pop bc             ; Restore the row counter
+    ld a, e            ; Get the low byte of DE
+    add a, 64-7        ; Move to the next row in video memory
+    ld e, a            ; Store the new low byte of DE
+    ld a, d            ; Get the high byte of DE
+    adc a, 0           ; Add carry if necessary
+    ld d, a            ; Store the new high byte of DE
+    dec b              ; Decrement row counter
+    jr nz, draw_background_left_row ; Repeat for all rows
+
+    ret                ; Return from the function
+
+_draw_background_right:
+    ld b, 231          ; Set loop counter for rows (i = 0; i < 231; i++)
+    ld hl, _bitmap_background_right ; Load the address of bitmap_background_left into HL
+    ld de, 0xc000+39    ; Start address in video memory
+
+draw_background_right_row:
+    push bc            ; Save the row counter
+    ld c, 22           ; Set loop counter for columns (j = 0; j < 7; j++)
+
+draw_background_right_col:
+    ld a, (hl)         ; Load the next byte from bitmap_background_left
+    ld (de), a         ; Store it in video memory
+    inc hl             ; Move to the next byte in bitmap_background_left
+    inc de             ; Move to the next byte in video memory
+    dec c              ; Decrement column counter
+    jr nz, draw_background_right_col ; Repeat for all columns
+
+    pop bc             ; Restore the row counter
+    ld a, e            ; Get the low byte of DE
+    add a, 64-22       ; Move to the next row in video memory
+    ld e, a            ; Store the new low byte of DE
+    ld a, d            ; Get the high byte of DE
+    adc a, 0           ; Add carry if necessary
+    ld d, a            ; Store the new high byte of DE
+    dec b              ; Decrement row counter
+    jr nz, draw_background_right_row ; Repeat for all rows
+
+    ret                ; Return from the function
+
+_draw_background_btm:
+    ld b, 7          ; Set loop counter for rows (i = 0; i < 231; i++)
+    ld hl, _bitmap_background_btm ; Load the address of bitmap_background_left into HL
+    ld de, 0xc000 + (224*64) + 7    ; Start address in video memory
+
+draw_background_btm_row:
+    push bc            ; Save the row counter
+    ld c, 32           ; Set loop counter for columns (j = 0; j < 7; j++)
+
+draw_background_btm_col:
+    ld a, (hl)         ; Load the next byte from bitmap_background_left
+    ld (de), a         ; Store it in video memory
+    inc hl             ; Move to the next byte in bitmap_background_left
+    inc de             ; Move to the next byte in video memory
+    dec c              ; Decrement column counter
+    jr nz, draw_background_btm_col ; Repeat for all columns
+
+    pop bc             ; Restore the row counter
+    ld a, e            ; Get the low byte of DE
+    add a, 64-32       ; Move to the next row in video memory
+    ld e, a            ; Store the new low byte of DE
+    ld a, d            ; Get the high byte of DE
+    adc a, 0           ; Add carry if necessary
+    ld d, a            ; Store the new high byte of DE
+    dec b              ; Decrement row counter
+    jr nz, draw_background_btm_row ; Repeat for all rows
+
+    ret                ; Return from the function

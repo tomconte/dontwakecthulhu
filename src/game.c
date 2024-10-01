@@ -32,6 +32,9 @@ extern void set_palette();
 extern void vsync();
 extern void draw_sprite(const unsigned char *sprite, unsigned char x, unsigned char y);
 extern void delete_sprite(unsigned char x, unsigned char y);
+extern void draw_background_left();
+extern void draw_background_right();
+extern void draw_background_btm();
 
 // Array of pointers to bitmaps
 
@@ -70,47 +73,6 @@ const unsigned char *virus[] = {
     virus_1,
     virus_2,
     virus_0};
-
-/* Display routines for Hector */
-
-void draw_background_left()
-{
-    unsigned char i, j;
-
-    for (i = 0; i < 231; i++)
-    {
-        for (j = 0; j < 7; j++)
-        {
-            POKE(0xc000 + j + i * 64, bitmap_background_left[i * 7 + j]);
-        }
-    }
-}
-
-void draw_background_right()
-{
-    unsigned char i, j;
-
-    for (i = 0; i < 231; i++)
-    {
-        for (j = 0; j < 22; j++)
-        {
-            POKE(0xc000 + j + i * 64 + 39, bitmap_background_right[i * 22 + j]);
-        }
-    }
-}
-
-void draw_background_btm()
-{
-    unsigned char i, j;
-
-    for (i = 0; i < 7; i++)
-    {
-        for (j = 0; j < 32; j++)
-        {
-            POKE(0xc000 + j + ((i + 224) * 64) + 7, bitmap_background_btm[i * 32 + j]);
-        }
-    }
-}
 
 /* Various utility methods for Hector */
 
