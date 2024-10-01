@@ -23,6 +23,7 @@ extern const unsigned char virus_2[64];
 
 extern const unsigned char bitmap_background_left[1561];
 extern const unsigned char bitmap_background_right[5082];
+extern const unsigned char bitmap_background_btm[224];
 
 // Define ROM routines
 extern void rom_cls();
@@ -76,7 +77,7 @@ void draw_background_left()
 {
     unsigned char i, j;
 
-    for (i = 0; i < 223; i++)
+    for (i = 0; i < 231; i++)
     {
         for (j = 0; j < 7; j++)
         {
@@ -94,6 +95,19 @@ void draw_background_right()
         for (j = 0; j < 22; j++)
         {
             POKE(0xc000 + j + i * 64 + 39, bitmap_background_right[i * 22 + j]);
+        }
+    }
+}
+
+void draw_background_btm()
+{
+    unsigned char i, j;
+
+    for (i = 0; i < 7; i++)
+    {
+        for (j = 0; j < 32; j++)
+        {
+            POKE(0xc000 + j + ((i + 224) * 64) + 7, bitmap_background_btm[i * 32 + j]);
         }
     }
 }
@@ -340,21 +354,39 @@ void clear_lines(void)
                             if (board[read * BOARD_WIDTH + x].connected == CONNECTED_RIGHT && x < BOARD_WIDTH - 1)
                             {
                                 // Pill connected to the right
-                                if (read < write && board[(read + 1) * BOARD_WIDTH + x + 1].color == EMPTY)
+                                if (read < write)
                                 {
-                                    // TODO: Need to check all the x+1 column cells between read and write, not just the next one
-                                    
-                                    board[write * BOARD_WIDTH + x] = board[read * BOARD_WIDTH + x];
-                                    board[write * BOARD_WIDTH + x + 1] = board[read * BOARD_WIDTH + x + 1];
-                                    board[read * BOARD_WIDTH + x].color = EMPTY;
-                                    board[read * BOARD_WIDTH + x].connected = 0;
-                                    board[read * BOARD_WIDTH + x + 1].color = EMPTY;
-                                    board[read * BOARD_WIDTH + x + 1].connected = 0;
+                                    // Check all the x+1 column cells between read and write, not just the next one
+                                    for (unsigned char i = read + 1; i <= write; i++)
+                                    {
+                                        if (board[i * BOARD_WIDTH + x + 1].color != EMPTY)
+                                        {
+                                            write = i - 1;
+                                            break;
+                                        }
+                                    }
 
-                                    fell = 1;
+                                    // Can still fall
+                                    if (read < write)
+                                    {
+                                        board[write * BOARD_WIDTH + x] = board[read * BOARD_WIDTH + x];
+                                        board[write * BOARD_WIDTH + x + 1] = board[read * BOARD_WIDTH + x + 1];
+                                        board[read * BOARD_WIDTH + x].color = EMPTY;
+                                        board[read * BOARD_WIDTH + x].connected = 0;
+                                        board[read * BOARD_WIDTH + x + 1].color = EMPTY;
+                                        board[read * BOARD_WIDTH + x + 1].connected = 0;
+
+                                        fell = 1;
+                                        write--;
+                                        read--;
+                                    } else {
+                                        read--;
+                                        write = read;
+                                    }
+                                } else {
+                                    write--;
+                                    read--;
                                 }
-                                write--;
-                                read--;
                             }
                             else if (board[read * BOARD_WIDTH + x].connected == CONNECTED_LEFT && x > 0)
                             {
@@ -664,8 +696,7 @@ void main()
     set_palette();
     draw_background_left();
     draw_background_right();
-
-    // test_pills();
+    draw_background_btm();
 
     // Initialize random number generator
     __rand = PEEK(0x5fef);
