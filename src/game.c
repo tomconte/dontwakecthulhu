@@ -30,6 +30,7 @@ extern void rom_cls();
 extern unsigned char rom_ci();
 extern void set_palette();
 extern void vsync();
+extern unsigned char key_in();
 extern void draw_sprite(const unsigned char *sprite, unsigned char x, unsigned char y);
 extern void delete_sprite(unsigned char x, unsigned char y);
 extern void draw_background_left();
@@ -598,8 +599,7 @@ void game_loop(void)
         render_game();
 
         // Handle input
-        // ... [Implement input handling based on your system]
-        key = rom_ci();
+        key = key_in();
 
         if (key == 'o')
         { // Left arrow
@@ -632,19 +632,19 @@ void game_loop(void)
         }
 
         // Move pill down every N frames
-        // if (++frame_counter >= 60) {  // Adjust for desired speed
-        //     frame_counter = 0;
-        //     if (!move_pill(0, 1)) {
-        //         // Pill has landed
-        //         clear_lines();
-        //         if (virus_count == 0) {
-        //             // Level cleared
-        //             init_game();
-        //         } else {
-        //             generate_pill();
-        //         }
-        //     }
-        // }
+        if (++frame_counter >= 30) {  // Adjust for desired speed
+            frame_counter = 0;
+            if (!move_pill(0, 1)) {
+                // Pill has landed
+                clear_lines();
+                if (virus_count == 0) {
+                    // Level cleared
+                    init_game();
+                } else {
+                    generate_pill();
+                }
+            }
+        }
     }
 }
 

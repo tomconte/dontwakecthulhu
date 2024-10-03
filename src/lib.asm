@@ -3,6 +3,7 @@ MODULE lib
 PUBLIC _rom_cls
 PUBLIC _rom_ci
 PUBLIC _vsync
+PUBLIC _key_in
 PUBLIC _set_palette
 PUBLIC _draw_sprite
 PUBLIC _delete_sprite
@@ -20,6 +21,11 @@ _rom_cls:
 
 _rom_ci:
     call 0x07e0
+    ld l, a
+    ret
+
+_key_in:
+    call 0x07e7
     ld l, a
     ret
 
