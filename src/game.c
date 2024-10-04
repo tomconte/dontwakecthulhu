@@ -121,6 +121,7 @@ unsigned char virus_count;
 unsigned int score;
 unsigned char current_pill_x, current_pill_y;
 unsigned char current_pill_color1, current_pill_color2;
+unsigned char next_pill_color1, next_pill_color2;
 unsigned char game_over;
 unsigned char current_pill_connection;
 
@@ -188,6 +189,14 @@ void render_game(void)
     }
 }
 
+// Display the next pill
+void display_next_pill(void)
+{
+    draw_sprite(pill_left[next_pill_color1 - PILL_RED], 50, 61);
+    draw_sprite(pill_right[next_pill_color2 - PILL_RED], 50 + 4, 61);
+}
+
+// Function to clear lines and update score
 void clear_lines(void)
 {
     unsigned char x, y, len, cleared, fell;
@@ -537,8 +546,19 @@ void rotate_pill(void)
 // Generate a new pill
 void generate_pill(void)
 {
-    current_pill_color1 = PILL_RED + (rand() % 3);
-    current_pill_color2 = PILL_RED + (rand() % 3);
+    if (next_pill_color1 != 0 && next_pill_color2 != 0)
+    {
+        current_pill_color1 = next_pill_color1;
+        current_pill_color2 = next_pill_color2;
+        next_pill_color1 = PILL_RED + (rand() % 3);
+        next_pill_color2 = PILL_RED + (rand() % 3);
+    } else {
+        current_pill_color1 = PILL_RED + (rand() % 3);
+        current_pill_color2 = PILL_RED + (rand() % 3);
+        next_pill_color1 = PILL_RED + (rand() % 3);
+        next_pill_color2 = PILL_RED + (rand() % 3);
+    }
+
     current_pill_x = BOARD_WIDTH / 2 - 1;
     current_pill_y = 0;
     current_pill_connection = CONNECTED_RIGHT;
@@ -585,6 +605,7 @@ void init_game(void)
     score = 0;
     game_over = 0;
     generate_pill();
+    display_next_pill();
 }
 
 // Main game loop
@@ -623,6 +644,7 @@ void game_loop(void)
                 else
                 {
                     generate_pill();
+                    display_next_pill();
                 }
             }
         }
@@ -642,6 +664,7 @@ void game_loop(void)
                     init_game();
                 } else {
                     generate_pill();
+                    display_next_pill();
                 }
             }
         }
