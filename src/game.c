@@ -373,8 +373,14 @@ void clear_lines(void)
                                 {
                                     board[write * BOARD_WIDTH + x] = board[read * BOARD_WIDTH + x];
                                     board[(write - 1) * BOARD_WIDTH + x] = board[(read - 1) * BOARD_WIDTH + x];
-                                    board[read * BOARD_WIDTH + x].color = EMPTY;
-                                    board[read * BOARD_WIDTH + x].connected = 0;
+                                    
+                                    // Don't overwrite the top half of the pill
+                                    if (read < write - 1)
+                                    {
+                                        board[read * BOARD_WIDTH + x].color = EMPTY;
+                                        board[read * BOARD_WIDTH + x].connected = 0;
+                                    }
+
                                     board[(read - 1) * BOARD_WIDTH + x].color = EMPTY;
                                     board[(read - 1) * BOARD_WIDTH + x].connected = 0;
 
