@@ -692,6 +692,11 @@ void main()
     // Initialize random number generator
     __rand = PEEK(0x5fef);
 
-    init_game();
-    game_loop();
+    while (1)
+    {
+        init_game();
+        game_loop();
+        // TODO: game over screen
+        rom_ci();
+    }
 }
