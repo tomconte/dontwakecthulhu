@@ -17,6 +17,7 @@ It is saved as a binary that can be included using the INCBIN directive in the Z
 
 """
 
+import argparse
 import sys
 
 from PIL import Image
@@ -30,7 +31,7 @@ PALETTE = [
 ]
 
 
-def convert_bitmap_to_hector(png_file, output_prefix):
+def convert_bitmap_to_hector(png_file, output_prefix, include_full_line=False):
     # Open image
     img = Image.open(png_file)
     img = img.convert("RGB")
@@ -64,7 +65,9 @@ def convert_bitmap_to_hector(png_file, output_prefix):
                     if (r, g, b) in PALETTE:
                         pixel = PALETTE.index((r, g, b))
                     else:
-                        raise ValueError(f"Unknown color: ({r}, {g}, {b})")
+                        # Unknown color, default to black
+                        print(f"Unknown color at ({x}, {y}): {r:02x}, {g:02x}, {b:02x}")
+                        pixel = 0
 
                     # Every 4 pixels, we can write a byte
                     pixel_values.append(pixel)
@@ -96,17 +99,25 @@ def convert_bitmap_to_hector(png_file, output_prefix):
                     # Write to the C file
                     c.write(f"    0x{byte:02x},\n")
 
+                # Now add pixels to reach 256 pixels per line
+                if include_full_line:
+                    for i in range(0, 64 - ((img.width + 3) // 4)):
+                        f.write(b"\x00")
+                        c.write("    0x00,\n")
+
             c.write("};\n")
 
 
 if __name__ == "__main__":
-    if len(sys.argv) != 3:
-        print(
-            "Usage: python convert_sprites_to_hector_bin.py <png_file> <output_prefix>"
-        )
-        sys.exit(1)
+    parser = argparse.ArgumentParser(description="Convert PNG image to Hector bitmap format.")
+    parser.add_argument("png_file", help="Path to the PNG file to convert")
+    parser.add_argument("output_prefix", help="Prefix for the output files")
+    parser.add_argument("--full", action="store_true", help="Include full 256 pixels per line in the output")
 
-    png_file = sys.argv[1]
-    output_prefix = sys.argv[2]
+    args = parser.parse_args()
 
-    convert_bitmap_to_hector(png_file, output_prefix)
+    png_file = args.png_file
+    output_prefix = args.output_prefix
+    include_full_line = args.full
+
+    convert_bitmap_to_hector(png_file, output_prefix, include_full_line)
