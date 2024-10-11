@@ -10,6 +10,7 @@ bitmaps:
 	@python scripts/convert_bitmap_to_hector.py png/backv2-left.png background_left
 	@python scripts/convert_bitmap_to_hector.py png/backv2-right.png background_right
 	@python scripts/convert_bitmap_to_hector.py png/backv2-bottom.png background_btm
+	@python scripts/convert_bitmap_to_hector.py --full --last 231 png/cthulhu_splashscreen.png splash
 
 compile:
 	@z88dk-z80asm -b src/start.asm && mv src/start.bin build && rm -f src/start.o

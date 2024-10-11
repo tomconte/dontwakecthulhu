@@ -31,7 +31,7 @@ PALETTE = [
 ]
 
 
-def convert_bitmap_to_hector(png_file, output_prefix, include_full_line=False):
+def convert_bitmap_to_hector(png_file, output_prefix, include_full_line=False, last_lines=None):
     # Open image
     img = Image.open(png_file)
     img = img.convert("RGB")
@@ -55,8 +55,14 @@ def convert_bitmap_to_hector(png_file, output_prefix, include_full_line=False):
         with open(f"build/{output_prefix}.c", "w") as c:
             c.write(f"const unsigned char bitmap_{output_prefix}[{total_size}] = {{\n")
 
+            # Write the last lines only
+            if last_lines:
+                start_line = img.height - last_lines
+            else:
+                start_line = 0
+
             # Write pixels
-            for y in range(img.height):
+            for y in range(start_line, img.height):
                 pixel_values = []
                 for x in range(img.width):
                     r, g, b = img.getpixel((x, y))
@@ -113,11 +119,13 @@ if __name__ == "__main__":
     parser.add_argument("png_file", help="Path to the PNG file to convert")
     parser.add_argument("output_prefix", help="Prefix for the output files")
     parser.add_argument("--full", action="store_true", help="Include full 256 pixels per line in the output")
+    parser.add_argument("--last", help="Only output the last n lines", type=int, action="store"),
 
     args = parser.parse_args()
 
     png_file = args.png_file
     output_prefix = args.output_prefix
     include_full_line = args.full
+    last_lines = args.last
 
-    convert_bitmap_to_hector(png_file, output_prefix, include_full_line)
+    convert_bitmap_to_hector(png_file, output_prefix, include_full_line, last_lines)
