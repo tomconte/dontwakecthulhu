@@ -31,9 +31,9 @@ def write_end_block(k7):
     total_bytes += 6
 
 
-with open("build/dontwake_k7.k7", "wb") as k7:
-    write_data_bloc(k7, "build/splash.bin", 0xc0)
-    write_data_bloc(k7, "build/dontwake.bin", 0x70)
+with open("build/dontwake.k7", "wb") as k7:
+    # write_data_bloc(k7, "build/splash.bin", 0xc0)
+    write_data_bloc(k7, "build/dontwake.bin", 0x60)
     write_data_bloc(k7, "build/start.bin", 0x4c)    
     write_end_block(k7)
 
