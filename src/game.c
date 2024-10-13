@@ -1,6 +1,7 @@
 #define POKE(reg, value) (*(volatile unsigned char *)(reg) = (unsigned char)(value))
 #define PEEK(reg) (*(volatile unsigned char *)(reg))
 
+// Pill bitmaps
 extern const unsigned char pill_0[64];
 extern const unsigned char pill_1[64];
 extern const unsigned char pill_2[64];
@@ -17,13 +18,43 @@ extern const unsigned char pill_12[64];
 extern const unsigned char pill_13[64];
 extern const unsigned char pill_14[64];
 
+// Virus bitmaps
 extern const unsigned char virus_0[64];
 extern const unsigned char virus_1[64];
 extern const unsigned char virus_2[64];
 
+// Background bitmaps
 extern const unsigned char bitmap_background_left[1561];
 extern const unsigned char bitmap_background_right[5082];
 extern const unsigned char bitmap_background_btm[224];
+
+// Digits bitmaps
+// In this order: 1, 2, 3, 4, 5, 6, 7, 8, 9, 0, dot
+extern const unsigned char digit_0[8];
+extern const unsigned char digit_1[8];
+extern const unsigned char digit_2[8];
+extern const unsigned char digit_3[8];
+extern const unsigned char digit_4[8];
+extern const unsigned char digit_5[8];
+extern const unsigned char digit_6[8];
+extern const unsigned char digit_7[8];
+extern const unsigned char digit_8[8];
+extern const unsigned char digit_9[8];
+extern const unsigned char digit_dot[8];
+
+// Define the translation table to go from a character to a sprite index
+const unsigned char *char_to_sprite[] = {
+    digit_9, // 0
+    digit_0, // 1
+    digit_1, // 2
+    digit_2, // 3
+    digit_3, // 4
+    digit_4, // 5
+    digit_5, // 6
+    digit_6, // 7
+    digit_7, // 8
+    digit_8  // 9
+};
 
 // Define ROM routines
 extern void rom_cls();
@@ -33,6 +64,7 @@ extern void vsync();
 extern unsigned char key_in();
 extern void draw_sprite(const unsigned char *sprite, unsigned char x, unsigned char y);
 extern void delete_sprite(unsigned char x, unsigned char y);
+extern void draw_digit(const unsigned char *digit, unsigned char x, unsigned char y);
 extern void draw_background_left();
 extern void draw_background_right();
 extern void draw_background_btm();
@@ -85,6 +117,48 @@ unsigned char rand()
     return __rand;
 }
 
+/*************** */
+/* Score Display */
+/*************** */
+
+#define SCORE_X 48
+#define SCORE_Y 98
+#define LEVEL_X 56
+#define LEVEL_Y 86
+
+void draw_number(unsigned int number, unsigned char x, unsigned char y)
+{
+    unsigned char digits[5] = {0, 0, 0, 0, 0};
+    unsigned char i = 0;
+    unsigned char leading = 0;
+    unsigned char x_offset = 0;
+
+    if (number == 0)
+    {
+        draw_digit(char_to_sprite[0], x, y);
+        return;
+    }
+
+    while (number > 0)
+    {
+        digits[i++] = number % 10;
+        number /= 10;
+    }
+
+    leading = 1;
+    for (i = 0; i < 5; i++)
+    {
+        // Score examples: 12345 -> 54321, 123 -> 32100, 800 -> 00800, 1200 -> 00210
+        // Skip the leading zeros
+        if (digits[4 - i] != 0 || !leading)
+        {
+            draw_digit(char_to_sprite[digits[4 - i]], x + x_offset, y);
+            leading = 0;
+            x_offset++;
+        }
+    }
+}
+
 /**************/
 /* GAME LOGIC */
 /**************/
@@ -119,6 +193,7 @@ typedef struct
 Cell board[BOARD_WIDTH * BOARD_HEIGHT];
 unsigned char virus_count;
 unsigned int score;
+unsigned int level;
 unsigned char current_pill_x, current_pill_y;
 unsigned char current_pill_color1, current_pill_color2;
 unsigned char next_pill_color1, next_pill_color2;
@@ -579,10 +654,13 @@ void generate_pill(void)
     }
 }
 
-// Initialize the game
-void init_game(void)
+// Initialize a level
+void init_level(void)
 {
     unsigned char x, y;
+
+    // Increment level
+    level++;
 
     // Clear the board
     for (y = 0; y < BOARD_HEIGHT; y++)
@@ -608,10 +686,19 @@ void init_game(void)
         }
     }
 
-    score = 0;
     game_over = 0;
     generate_pill();
     display_next_pill();
+    draw_number(score, SCORE_X, SCORE_Y);
+    draw_number(level, LEVEL_X, LEVEL_Y);
+}
+
+// Initialize a new game
+void init_game(void)
+{
+    score = 0;
+    level = 0;
+    init_level();
 }
 
 // Main game loop
@@ -645,12 +732,13 @@ void game_loop(void)
                 if (virus_count == 0)
                 {
                     // Level cleared
-                    init_game();
+                    init_level();
                 }
                 else
                 {
                     generate_pill();
                     display_next_pill();
+                    draw_number(score, SCORE_X, SCORE_Y);
                 }
             }
         }
@@ -667,10 +755,11 @@ void game_loop(void)
                 clear_lines();
                 if (virus_count == 0) {
                     // Level cleared
-                    init_game();
+                    init_level();
                 } else {
                     generate_pill();
                     display_next_pill();
+                    draw_number(score, SCORE_X, SCORE_Y);
                 }
             }
         }

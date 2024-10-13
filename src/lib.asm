@@ -7,6 +7,7 @@ PUBLIC _key_in
 PUBLIC _set_palette
 PUBLIC _draw_sprite
 PUBLIC _delete_sprite
+PUBLIC _draw_digit
 PUBLIC _draw_background_left
 PUBLIC _draw_background_right
 PUBLIC _draw_background_btm
@@ -154,6 +155,62 @@ deleteloop:
     ; decrement a and loop if not zero
     dec a
     jr nz, deleteloop
+
+    ret
+
+_draw_digit:
+    ; read y
+    ld hl, 2
+    add hl, sp
+    ld a, (hl)
+    ; multiply y by 64
+    ld h, 0
+    ld l, a
+    add hl, hl
+    add hl, hl
+    add hl, hl
+    add hl, hl
+    add hl, hl
+    add hl, hl
+    ; save hl to de
+    ex de, hl
+    ; read x
+    ld hl, 4
+    add hl, sp
+    ld a, (hl)
+    ; add x to de
+    ld h, 0
+    ld l, a
+    add hl, de
+    ; add 0xc000 to hl
+    add hl, 0xc000
+    ; save hl to de
+    ex de, hl
+    ; read the source address
+    ld hl, 6
+    add hl, sp
+    ld a, (hl)
+    inc hl
+    ld b, (hl)
+    ; transfer the source address to hl
+    ld l, a
+    ld h, b
+
+    ; initialize the loop counter
+    ld a, 8
+
+digitloop:
+    ; copy one byte
+    ld bc, 1
+    ldi
+    ; add 63 bytes to de to go to the next line
+    ld bc, 63
+    ex de, hl
+    add hl, bc
+    ex de, hl
+    ; decrement a and loop if not zero
+    dec a
+    jr nz, digitloop
 
     ret
 
