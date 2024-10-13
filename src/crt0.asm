@@ -2,6 +2,6 @@
 
     EXTERN _main
 
-    ORG 0x7000
+    ORG 0x6000
 
     call _main
