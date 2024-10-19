@@ -17,16 +17,30 @@ EXTERN _bitmap_background_right
 EXTERN _bitmap_background_btm
 
 _rom_cls:
+    IFDEF HRX
+    ;ld a, 0x0f
+    ;rst 0x28
+    nop
+    ELSE
     call 0x0d2f
+    ENDIF
     ret
 
 _rom_ci:
+    IFDEF HRX
+    call 0x10ca
+    ELSE
     call 0x07e0
+    ENDIF
     ld l, a
     ret
 
 _key_in:
+    IFDEF HRX
+    call 0x10d3
+    ELSE
     call 0x07e7
+    ENDIF
     ld l, a
     ret
 

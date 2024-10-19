@@ -1,3 +1,7 @@
+SOURCES = 	src/game.c src/lib.asm \
+			build/pill_*.c build/virus_*.c build/digit_*.c \
+			build/background_left.c build/background_right.c build/background_btm.c
+
 default:
 	@echo "Please specify a target: clean, bitmaps, compile, k7"
 
@@ -15,7 +19,8 @@ bitmaps:
 
 compile:
 	z88dk-z80asm -b src/start.asm && mv src/start.bin build && rm -f src/start.o
-	zcc +sos -crt0=src/crt0.asm src/game.c src/lib.asm build/lib.o build/pill_*.c build/virus_*.c build/digit_*.c build/background_left.c build/background_right.c build/background_btm.c -o build/dontwake.bin
+	zcc +sos -crt0=src/crt0.asm $(SOURCES) -o build/dontwake.bin
+	zcc +sos -crt0=src/crt0.asm $(SOURCES) -o build/dontwake_hrx.bin -Ca-DHRX
 
 k7:
 	python scripts/create_k7.py
