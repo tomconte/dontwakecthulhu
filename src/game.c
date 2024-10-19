@@ -28,8 +28,8 @@ extern const unsigned char bitmap_background_left[1561];
 extern const unsigned char bitmap_background_right[5082];
 extern const unsigned char bitmap_background_btm[224];
 
-// Menu
-extern const unsigned char bitmap_menu[6527];
+// Menus etc.
+extern const unsigned char bitmap_gameover[3509];
 
 // Digits bitmaps
 // In this order: 1, 2, 3, 4, 5, 6, 7, 8, 9, 0, dot
@@ -69,6 +69,8 @@ extern void draw_sprite(const unsigned char *sprite, unsigned char x, unsigned c
 extern void delete_sprite(unsigned char x, unsigned char y);
 extern void draw_digit(const unsigned char *digit, unsigned char x, unsigned char y);
 extern void draw_bitmap(const unsigned char *bitmap, unsigned char width, unsigned char height, unsigned char x, unsigned char y);
+extern void decompress_menu();
+extern void decompress_menubg();
 
 // Array of pointers to bitmaps
 
@@ -778,11 +780,17 @@ void main()
     // Initialize random number generator
     __rand = PEEK(0x5fef);
 
+    // Splash screen
+    decompress_menubg();
+    // Wait for space key
+    while (rom_ci() != ' ')
+        ;
+
     while (1)
     {
         // Game menu
-        rom_cls();
-        draw_bitmap(bitmap_menu, 61, 107, 0, 96);
+        // draw_bitmap(bitmap_menu, 61, 107, 0, 96);
+        decompress_menu();
         // Wait for space key
         while (rom_ci() != ' ')
             ;
@@ -797,9 +805,14 @@ void main()
 
         game_loop();
 
-        // TODO: game over screen
+        // Game over screen
+        draw_bitmap(bitmap_gameover, 29, 121, 8, 55);
         // Wait for space key
         while (rom_ci() != ' ')
             ;
+
+        // Clear the screen
+        rom_cls();
+        decompress_menubg();
     }
 }

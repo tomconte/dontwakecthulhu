@@ -1,13 +1,15 @@
 SOURCES = 	src/game.c src/lib.asm \
 			build/pill_*.c build/virus_*.c build/digit_*.c \
 			build/background_left.c build/background_right.c build/background_btm.c \
-			build/menu.c
+			build/gameover.c
+
+ZX0 = ../ZX0/win/zx0.exe
 
 default:
 	@echo "Please specify a target: clean, bitmaps, compile, k7"
 
 clean:
-	rm -f build/*.c build/*.bin build/*.k7
+	rm -f build/*.c build/*.bin build/*.k7 build/*.zx0
 
 bitmaps:
 	python scripts/convert_sprites_to_hector.py png/drmario_sprites_v3.png 15 pill
@@ -15,9 +17,13 @@ bitmaps:
 	python scripts/convert_bitmap_to_hector.py png/backv2-left.png background_left
 	python scripts/convert_bitmap_to_hector.py png/backv2-right.png background_right
 	python scripts/convert_bitmap_to_hector.py png/backv2-bottom.png background_btm
-	python scripts/convert_bitmap_to_hector.py png/info-text.png menu
+	python scripts/convert_bitmap_to_hector.py --full png/info-text.png menu
 	python scripts/convert_bitmap_to_hector.py --full --last 231 png/cthulhu_splashscreen.png splash
+	python scripts/convert_bitmap_to_hector.py --full --height 231 png/cthulhu_splashscreen.png menubg
 	python scripts/convert_digits_to_hector.py png/font-cthulhu.png digit
+	python scripts/convert_bitmap_to_hector.py png/game-over.png gameover
+	$(ZX0) build/menu.bin
+	$(ZX0) build/menubg.bin
 
 compile:
 	z88dk-z80asm -b src/start.asm && mv src/start.bin build && rm -f src/start.o

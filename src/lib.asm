@@ -9,6 +9,12 @@ PUBLIC _draw_sprite
 PUBLIC _delete_sprite
 PUBLIC _draw_digit
 PUBLIC _draw_bitmap
+PUBLIC _decompress_menu
+PUBLIC _decompress_menubg
+
+; -----------------------------------------------------------------------------
+; ROM routines
+; -----------------------------------------------------------------------------
 
 _rom_cls:
     IFDEF HRX
@@ -40,9 +46,17 @@ _key_in:
     ld l, a
     ret
 
+; -----------------------------------------------------------------------------
+; Wait for the next vertical sync (not used)
+; -----------------------------------------------------------------------------
+
 _vsync:
     halt
     ret
+
+; -----------------------------------------------------------------------------
+; Set the palette
+; -----------------------------------------------------------------------------
 
 _set_palette:
     ld hl, 0x1000
@@ -50,6 +64,10 @@ _set_palette:
     ld hl, 0x1800
     ld (hl), 0x3a    ; color1 = 2, color3 = 7
     ret
+
+; -----------------------------------------------------------------------------
+; Draw a sprite on the screen
+; -----------------------------------------------------------------------------
 
 _draw_sprite:
     ; copy the bitmap to screen
@@ -114,6 +132,10 @@ spriteloop:
 
     ret
 
+; -----------------------------------------------------------------------------
+; Delete a sprite from the screen
+; -----------------------------------------------------------------------------
+
 _delete_sprite:
     ; clear the sprite from the screen
     ; - the sprite is 16x16 pixels
@@ -167,6 +189,10 @@ deleteloop:
     jr nz, deleteloop
 
     ret
+
+; -----------------------------------------------------------------------------
+; Draw a digit on the screen
+; -----------------------------------------------------------------------------
 
 _draw_digit:
     ; read y
@@ -223,6 +249,10 @@ digitloop:
     jr nz, digitloop
 
     ret
+
+; -----------------------------------------------------------------------------
+; Draw a bitmap on the screen
+; -----------------------------------------------------------------------------
 
 _draw_bitmap:
     ; Read parameters from the stack
@@ -295,3 +325,89 @@ draw_bitmap_col:
     jr nz, draw_bitmap_row ; Repeat for all rows
 
     ret                ; Return from the function
+
+; -----------------------------------------------------------------------------
+; Decompress menu and menubg
+; -----------------------------------------------------------------------------
+
+_decompress_menu:
+    ld hl, bitmap_menu
+    ld de, 0xc000 + (96*64)
+    call dzx0_standard
+    ret
+
+_decompress_menubg:
+    ld hl, bitmap_menubg
+    ld de, 0xc000
+    call dzx0_standard
+    ret
+
+; -----------------------------------------------------------------------------
+; ZX0 decoder by Einar Saukas & Urusergi
+; "Standard" version (68 bytes only)
+; -----------------------------------------------------------------------------
+; Parameters:
+;   HL: source address (compressed data)
+;   DE: destination address (decompressing)
+; -----------------------------------------------------------------------------
+
+PUBLIC dzx0_standard
+
+dzx0_standard:
+        ld      bc, $ffff               ; preserve default offset 1
+        push    bc
+        inc     bc
+        ld      a, $80
+dzx0s_literals:
+        call    dzx0s_elias             ; obtain length
+        ldir                            ; copy literals
+        add     a, a                    ; copy from last offset or new offset?
+        jr      c, dzx0s_new_offset
+        call    dzx0s_elias             ; obtain length
+dzx0s_copy:
+        ex      (sp), hl                ; preserve source, restore offset
+        push    hl                      ; preserve offset
+        add     hl, de                  ; calculate destination - offset
+        ldir                            ; copy from offset
+        pop     hl                      ; restore offset
+        ex      (sp), hl                ; preserve offset, restore source
+        add     a, a                    ; copy from literals or new offset?
+        jr      nc, dzx0s_literals
+dzx0s_new_offset:
+        pop     bc                      ; discard last offset
+        ld      c, $fe                  ; prepare negative offset
+        call    dzx0s_elias_loop        ; obtain offset MSB
+        inc     c
+        ret     z                       ; check end marker
+        ld      b, c
+        ld      c, (hl)                 ; obtain offset LSB
+        inc     hl
+        rr      b                       ; last offset bit becomes first length bit
+        rr      c
+        push    bc                      ; preserve new offset
+        ld      bc, 1                   ; obtain length
+        call    nc, dzx0s_elias_backtrack
+        inc     bc
+        jr      dzx0s_copy
+dzx0s_elias:
+        inc     c                       ; interlaced Elias gamma coding
+dzx0s_elias_loop:
+        add     a, a
+        jr      nz, dzx0s_elias_skip
+        ld      a, (hl)                 ; load another group of 8 bits
+        inc     hl
+        rla
+dzx0s_elias_skip:
+        ret     c
+dzx0s_elias_backtrack:
+        add     a, a
+        rl      c
+        rl      b
+        jr      dzx0s_elias_loop
+; -----------------------------------------------------------------------------
+
+bitmap_menu:
+    incbin "build/menu.bin.zx0"
+
+bitmap_menubg:
+    incbin "build/menubg.bin.zx0"
