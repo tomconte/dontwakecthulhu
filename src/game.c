@@ -28,6 +28,9 @@ extern const unsigned char bitmap_background_left[1561];
 extern const unsigned char bitmap_background_right[5082];
 extern const unsigned char bitmap_background_btm[224];
 
+// Menu
+extern const unsigned char bitmap_menu[6527];
+
 // Digits bitmaps
 // In this order: 1, 2, 3, 4, 5, 6, 7, 8, 9, 0, dot
 extern const unsigned char digit_0[8];
@@ -65,9 +68,7 @@ extern unsigned char key_in();
 extern void draw_sprite(const unsigned char *sprite, unsigned char x, unsigned char y);
 extern void delete_sprite(unsigned char x, unsigned char y);
 extern void draw_digit(const unsigned char *digit, unsigned char x, unsigned char y);
-extern void draw_background_left();
-extern void draw_background_right();
-extern void draw_background_btm();
+extern void draw_bitmap(const unsigned char *bitmap, unsigned char width, unsigned char height, unsigned char x, unsigned char y);
 
 // Array of pointers to bitmaps
 
@@ -772,20 +773,33 @@ void game_loop(void)
 
 void main()
 {
-    rom_cls();
     set_palette();
-    draw_background_left();
-    draw_background_right();
-    draw_background_btm();
 
     // Initialize random number generator
     __rand = PEEK(0x5fef);
 
     while (1)
     {
+        // Game menu
+        rom_cls();
+        draw_bitmap(bitmap_menu, 61, 107, 0, 96);
+        // Wait for space key
+        while (rom_ci() != ' ')
+            ;
+
+        // Game screen
+        rom_cls();
+        draw_bitmap(bitmap_background_left, 7, 231, 0, 0);
+        draw_bitmap(bitmap_background_right, 22, 231, 39, 0);
+        draw_bitmap(bitmap_background_btm, 32, 7, 7, 224);
+
         init_game();
+
         game_loop();
+
         // TODO: game over screen
-        rom_ci();
+        // Wait for space key
+        while (rom_ci() != ' ')
+            ;
     }
 }

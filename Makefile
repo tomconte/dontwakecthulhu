@@ -1,6 +1,7 @@
 SOURCES = 	src/game.c src/lib.asm \
 			build/pill_*.c build/virus_*.c build/digit_*.c \
-			build/background_left.c build/background_right.c build/background_btm.c
+			build/background_left.c build/background_right.c build/background_btm.c \
+			build/menu.c
 
 default:
 	@echo "Please specify a target: clean, bitmaps, compile, k7"
@@ -14,6 +15,7 @@ bitmaps:
 	python scripts/convert_bitmap_to_hector.py png/backv2-left.png background_left
 	python scripts/convert_bitmap_to_hector.py png/backv2-right.png background_right
 	python scripts/convert_bitmap_to_hector.py png/backv2-bottom.png background_btm
+	python scripts/convert_bitmap_to_hector.py png/info-text.png menu
 	python scripts/convert_bitmap_to_hector.py --full --last 231 png/cthulhu_splashscreen.png splash
 	python scripts/convert_digits_to_hector.py png/font-cthulhu.png digit
 

@@ -8,13 +8,7 @@ PUBLIC _set_palette
 PUBLIC _draw_sprite
 PUBLIC _delete_sprite
 PUBLIC _draw_digit
-PUBLIC _draw_background_left
-PUBLIC _draw_background_right
-PUBLIC _draw_background_btm
-
-EXTERN _bitmap_background_left
-EXTERN _bitmap_background_right
-EXTERN _bitmap_background_btm
+PUBLIC _draw_bitmap
 
 _rom_cls:
     IFDEF HRX
@@ -32,6 +26,7 @@ _rom_ci:
     ELSE
     call 0x07e0
     ENDIF
+    ld h, 0
     ld l, a
     ret
 
@@ -41,6 +36,7 @@ _key_in:
     ELSE
     call 0x07e7
     ENDIF
+    ld h, 0
     ld l, a
     ret
 
@@ -228,89 +224,74 @@ digitloop:
 
     ret
 
-_draw_background_left:
-    ld b, 231          ; Set loop counter for rows (i = 0; i < 231; i++)
-    ld hl, _bitmap_background_left ; Load the address of bitmap_background_left into HL
-    ld de, 0xc000      ; Start address in video memory
+_draw_bitmap:
+    ; Read parameters from the stack
+    ; y start offset
+    ld hl, 2
+    add hl, sp
+    ld a, (hl)
+    ; multiply y by 64
+    ld h, 0
+    ld l, a
+    add hl, hl
+    add hl, hl
+    add hl, hl
+    add hl, hl
+    add hl, hl
+    add hl, hl
+    ; save hl to de
+    ex de, hl
+    ; x start offset
+    ld hl, 4
+    add hl, sp
+    ld a, (hl)
+    ; add x to de
+    ld h, 0
+    ld l, a
+    add hl, de
+    ; add 0xc000 to hl
+    add hl, 0xc000
+    ; save hl to de
+    ex de, hl
+    ; rows (height)
+    ld hl, 6
+    add hl, sp
+    ld b, (hl)
+    ; columns (width)
+    ld hl, 8
+    add hl, sp
+    ld c, (hl)
+    ; address of the bitmap
+    ld hl, 10
+    add hl, sp
+    ld a, (hl)
+    inc hl
+    ld h, (hl)
+    ld l, a
 
-draw_background_left_row:
+draw_bitmap_row:
     push bc            ; Save the row counter
-    ld c, 7            ; Set loop counter for columns (j = 0; j < 7; j++)
+    ld a, c            ; Load the column counter into a
 
-draw_background_left_col:
-    ld a, (hl)         ; Load the next byte from bitmap_background_left
-    ld (de), a         ; Store it in video memory
-    inc hl             ; Move to the next byte in bitmap_background_left
+draw_bitmap_col:
+    ld b, (hl)         ; Load the next byte from the bitmap
+    ld (de), b         ; Store it in video memory
+    inc hl             ; Move to the next byte in the bitmap
     inc de             ; Move to the next byte in video memory
-    dec c              ; Decrement column counter
-    jr nz, draw_background_left_col ; Repeat for all columns
+    dec a              ; Decrement column counter
+    jr nz, draw_bitmap_col ; Repeat for all columns
 
     pop bc             ; Restore the row counter
-    ld a, e            ; Get the low byte of DE
-    add a, 64-7        ; Move to the next row in video memory
-    ld e, a            ; Store the new low byte of DE
-    ld a, d            ; Get the high byte of DE
-    adc a, 0           ; Add carry if necessary
-    ld d, a            ; Store the new high byte of DE
+
+    ld a, 64
+    sub c
+    add a, e
+    ld e, a
+    ld a, d
+    adc a, 0
+    ld d, a
+
     dec b              ; Decrement row counter
-    jr nz, draw_background_left_row ; Repeat for all rows
-
-    ret                ; Return from the function
-
-_draw_background_right:
-    ld b, 231          ; Set loop counter for rows (i = 0; i < 231; i++)
-    ld hl, _bitmap_background_right ; Load the address of bitmap_background_left into HL
-    ld de, 0xc000+39    ; Start address in video memory
-
-draw_background_right_row:
-    push bc            ; Save the row counter
-    ld c, 22           ; Set loop counter for columns (j = 0; j < 7; j++)
-
-draw_background_right_col:
-    ld a, (hl)         ; Load the next byte from bitmap_background_left
-    ld (de), a         ; Store it in video memory
-    inc hl             ; Move to the next byte in bitmap_background_left
-    inc de             ; Move to the next byte in video memory
-    dec c              ; Decrement column counter
-    jr nz, draw_background_right_col ; Repeat for all columns
-
-    pop bc             ; Restore the row counter
-    ld a, e            ; Get the low byte of DE
-    add a, 64-22       ; Move to the next row in video memory
-    ld e, a            ; Store the new low byte of DE
-    ld a, d            ; Get the high byte of DE
-    adc a, 0           ; Add carry if necessary
-    ld d, a            ; Store the new high byte of DE
-    dec b              ; Decrement row counter
-    jr nz, draw_background_right_row ; Repeat for all rows
-
-    ret                ; Return from the function
-
-_draw_background_btm:
-    ld b, 7          ; Set loop counter for rows (i = 0; i < 231; i++)
-    ld hl, _bitmap_background_btm ; Load the address of bitmap_background_left into HL
-    ld de, 0xc000 + (224*64) + 7    ; Start address in video memory
-
-draw_background_btm_row:
-    push bc            ; Save the row counter
-    ld c, 32           ; Set loop counter for columns (j = 0; j < 7; j++)
-
-draw_background_btm_col:
-    ld a, (hl)         ; Load the next byte from bitmap_background_left
-    ld (de), a         ; Store it in video memory
-    inc hl             ; Move to the next byte in bitmap_background_left
-    inc de             ; Move to the next byte in video memory
-    dec c              ; Decrement column counter
-    jr nz, draw_background_btm_col ; Repeat for all columns
-
-    pop bc             ; Restore the row counter
-    ld a, e            ; Get the low byte of DE
-    add a, 64-32       ; Move to the next row in video memory
-    ld e, a            ; Store the new low byte of DE
-    ld a, d            ; Get the high byte of DE
-    adc a, 0           ; Add carry if necessary
-    ld d, a            ; Store the new high byte of DE
-    dec b              ; Decrement row counter
-    jr nz, draw_background_btm_row ; Repeat for all rows
+    jr nz, draw_bitmap_row ; Repeat for all rows
 
     ret                ; Return from the function
