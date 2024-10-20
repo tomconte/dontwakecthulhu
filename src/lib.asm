@@ -18,9 +18,9 @@ PUBLIC _decompress_menubg
 
 _rom_cls:
     IFDEF HRX
-    ;ld a, 0x0f
-    ;rst 0x28
-    nop
+    ld a, 0x0f
+    rst 0x28
+    ld (0x0800), a
     ELSE
     call 0x0d2f
     ENDIF
@@ -29,6 +29,7 @@ _rom_cls:
 _rom_ci:
     IFDEF HRX
     call 0x10ca
+    ld (0x0800), a
     ELSE
     call 0x07e0
     ENDIF
@@ -39,6 +40,7 @@ _rom_ci:
 _key_in:
     IFDEF HRX
     call 0x10d3
+    ld (0x0800), a
     ELSE
     call 0x07e7
     ENDIF

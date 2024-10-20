@@ -26,9 +26,11 @@ bitmaps:
 	$(ZX0) build/menubg.bin
 
 compile:
-	z88dk-z80asm -b src/start.asm && mv src/start.bin build && rm -f src/start.o
+	z88dk-z80asm -b src/start.asm && mv src/start.bin build/start.bin && rm -f src/start.o
+	z88dk-z80asm -b src/start_hrx.asm && mv src/start_hrx.bin build/start_hrx.bin && rm -f src/start_hrx.o
 	zcc +sos -crt0=src/crt0.asm $(SOURCES) -o build/dontwake.bin
 	zcc +sos -crt0=src/crt0.asm $(SOURCES) -o build/dontwake_hrx.bin -Ca-DHRX
 
 k7:
-	python scripts/create_k7.py
+	python scripts/create_k7.py HR
+	python scripts/create_k7.py HRX

@@ -1,3 +1,6 @@
+import os
+import sys
+
 total_bytes = 0
 
 
@@ -31,10 +34,17 @@ def write_end_block(k7):
     total_bytes += 6
 
 
-with open("build/dontwake.k7", "wb") as k7:
+# First argument can be "HRX" or "HR"
+if len(sys.argv) != 2:
+    print("Usage: python create_k7.py <HRX|HR>")
+    sys.exit(1)
+
+suffix = "_hrx" if sys.argv[1] == "HRX" else ""
+
+with open(f"build/dontwake{suffix}.k7", "wb") as k7:
     # write_data_bloc(k7, "build/splash.bin", 0xc0)
-    write_data_bloc(k7, "build/dontwake.bin", 0x60)
-    write_data_bloc(k7, "build/start.bin", 0x4c)    
+    write_data_bloc(k7, f"build/dontwake{suffix}.bin", 0x60)
+    write_data_bloc(k7, f"build/start{suffix}.bin", 0x4c)    
     write_end_block(k7)
 
     print(total_bytes)

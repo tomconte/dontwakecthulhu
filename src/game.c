@@ -718,15 +718,15 @@ void game_loop(void)
         // Handle input
         key = key_in();
 
-        if (key == 'o')
+        if (key == 'o' || key == 'O')
         { // Left arrow
             move_pill(-1, 0);
         }
-        else if (key == 'p')
+        else if (key == 'p' || key == 'P')
         { // Right arrow
             move_pill(1, 0);
         }
-        else if (key == 'e')
+        else if (key == 'e' || key == 'E')
         { // Down arrow
             if (!move_pill(0, 1))
             {
@@ -745,7 +745,7 @@ void game_loop(void)
                 }
             }
         }
-        else if (key == 'r')
+        else if (key == 'r' || key == 'R')
         { // Up arrow
             rotate_pill();
         }
