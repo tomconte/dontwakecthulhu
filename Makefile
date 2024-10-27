@@ -1,5 +1,5 @@
 SOURCES = 	src/game.c src/lib.asm \
-			build/pill_*.c build/virus_*.c build/digit_*.c \
+			build/pill_*.c build/virus_*.c build/digit_*.c build/cleared_*.c \
 			build/background_left.c build/background_right.c build/background_btm.c \
 			build/gameover.c
 
@@ -13,6 +13,7 @@ clean:
 
 bitmaps:
 	python scripts/convert_sprites_to_hector.py png/drmario_sprites_v3.png 15 pill
+	python scripts/convert_sprites_to_hector.py png/sprite_clear.png 1 cleared
 	python scripts/convert_sprites_to_hector.py png/drmario_virus.png 3 virus
 	python scripts/convert_bitmap_to_hector.py png/backv2-left.png background_left
 	python scripts/convert_bitmap_to_hector.py png/backv2-right.png background_right

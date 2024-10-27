@@ -18,6 +18,9 @@ extern const unsigned char pill_12[64];
 extern const unsigned char pill_13[64];
 extern const unsigned char pill_14[64];
 
+// Cleared pill bitmap
+extern const unsigned char cleared_0[64];
+
 // Virus bitmaps
 extern const unsigned char virus_0[64];
 extern const unsigned char virus_1[64];
@@ -175,6 +178,7 @@ void draw_number(unsigned int number, unsigned char x, unsigned char y)
 #define PILL_RED 4
 #define PILL_YELLOW 5
 #define PILL_BLUE 6
+#define PILL_CLEAR 7
 
 // Connectivities:
 // 1 = connected right
@@ -227,6 +231,11 @@ unsigned char is_pill(unsigned char color)
     return color >= PILL_RED && color <= PILL_BLUE;
 }
 
+unsigned char is_cleared(unsigned char color)
+{
+    return color == PILL_CLEAR;
+}
+
 // Render game state
 void render_game(void)
 {
@@ -240,6 +249,10 @@ void render_game(void)
                 if (is_virus(board[y * BOARD_WIDTH + x].color))
                 {
                     draw_sprite(virus[board[y * BOARD_WIDTH + x].color - VIRUS_RED], 7 + x * 4, y * 16);
+                }
+                else if (is_cleared(board[y * BOARD_WIDTH + x].color))
+                {
+                    draw_sprite(cleared_0, 7 + x * 4, y * 16);
                 }
                 else
                 {
@@ -344,6 +357,7 @@ void clear_lines(void)
         // Clear marked cells and update score
         if (cleared)
         {
+            // Step 1: mark the cells as "matched" for rendering purposes
             for (y = 0; y < BOARD_HEIGHT; y++)
             {
                 for (x = 0; x < BOARD_WIDTH; x++)
@@ -368,18 +382,41 @@ void clear_lines(void)
                             board[(y + 1) * BOARD_WIDTH + x].connected = CONNECTED_NONE;
                         }
 
-                        // Clear the cell
-                        board[index].color = EMPTY;
+                        // Set the cell to "cleared" color
+                        board[index].color = PILL_CLEAR;
                         board[index].connected = CONNECTED_NONE;
 
                         score += 100 * (chain + 1);
-                        to_clear[index] = 0;
                     }
                 }
             }
 
             // Render game so we can see the changed pills
-            render_game();
+            for (unsigned char i = 0; i < 15; i++)
+            {
+                render_game();
+            }
+
+            // Step 2: actually clear the cells
+            for (y = 0; y < BOARD_HEIGHT; y++)
+            {
+                for (x = 0; x < BOARD_WIDTH; x++)
+                {
+                    unsigned char index = y * BOARD_WIDTH + x;
+
+                    if (to_clear[index])
+                    {
+                        board[index].color = EMPTY;
+                        to_clear[index] = 0;
+                    }
+                }
+            }
+
+            // Render game so we can see the cleared pills
+            for (unsigned char i = 0; i < 10; i++)
+            {
+                render_game();
+            }
 
             // Apply gravity to make pills fall
             // If any piece falls; loop again to check for more hanging pieces
@@ -494,10 +531,6 @@ void clear_lines(void)
                         }
                     }
                 }
-
-                // Render game so we can see the changed pills
-                render_game();
-
             } while (fell);
 
             chain++;
