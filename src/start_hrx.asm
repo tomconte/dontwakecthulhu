@@ -6,5 +6,7 @@
 
     ; On the HRX, enable VRAM paging
     ld (0x0800), a
+    ; Also enable interrupts
+    ei
 
     jp 0x6000

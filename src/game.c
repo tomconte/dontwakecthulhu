@@ -816,7 +816,7 @@ void main()
     // Splash screen
     decompress_menubg();
     // Wait for space key
-    while (rom_ci() != ' ')
+    while (key_in() != ' ')
         ;
 
     while (1)
@@ -825,7 +825,7 @@ void main()
         // draw_bitmap(bitmap_menu, 61, 107, 0, 96);
         decompress_menu();
         // Wait for space key
-        while (rom_ci() != ' ')
+        while (key_in() != ' ')
             ;
 
         // Game screen
@@ -841,7 +841,7 @@ void main()
         // Game over screen
         draw_bitmap(bitmap_gameover, 29, 121, 8, 55);
         // Wait for space key
-        while (rom_ci() != ' ')
+        while (key_in() != ' ')
             ;
 
         // Clear the screen
