@@ -206,6 +206,7 @@ unsigned char current_pill_color1, current_pill_color2;
 unsigned char next_pill_color1, next_pill_color2;
 unsigned char game_over;
 unsigned char current_pill_connection;
+unsigned char speed = 1;
 
 // Helper function to check if two colors match (including virus-pill matches)
 unsigned char colors_match(unsigned char color1, unsigned char color2)
@@ -784,7 +785,7 @@ void game_loop(void)
         }
 
         // Move pill down every N frames
-        if (++frame_counter >= 30) {  // Adjust for desired speed
+        if (++frame_counter >= 3 * speed) {
             frame_counter = 0;
             if (!move_pill(0, 1)) {
                 // Pill has landed
@@ -824,9 +825,17 @@ void main()
         // Game menu
         // draw_bitmap(bitmap_menu, 61, 107, 0, 96);
         decompress_menu();
-        // Wait for space key
-        while (key_in() != ' ')
-            ;
+
+        // Wait for digit key (to select speed)
+        while (1)
+        {
+            unsigned char key = key_in();
+            if (key >= '1' && key <= '9')
+            {
+                speed = key - '0';
+                break;
+            }
+        }
 
         // Game screen
         rom_cls();
