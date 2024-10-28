@@ -1,7 +1,6 @@
 MODULE lib
 
 PUBLIC _rom_cls
-PUBLIC _rom_ci
 PUBLIC _vsync
 PUBLIC _key_in
 PUBLIC _set_palette
@@ -24,17 +23,6 @@ _rom_cls:
     ELSE
     call 0x0d2f
     ENDIF
-    ret
-
-_rom_ci:
-    IFDEF HRX
-    call 0x10ca
-    ld (0x0800), a
-    ELSE
-    call 0x07e0
-    ENDIF
-    ld h, 0
-    ld l, a
     ret
 
 _key_in:
