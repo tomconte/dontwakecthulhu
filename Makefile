@@ -18,7 +18,7 @@ bitmaps:
 	python scripts/convert_bitmap_to_hector.py png/backv2-left.png background_left
 	python scripts/convert_bitmap_to_hector.py png/backv2-right.png background_right
 	python scripts/convert_bitmap_to_hector.py png/backv2-bottom.png background_btm
-	python scripts/convert_bitmap_to_hector.py --full png/info-text.png menu
+	python scripts/convert_bitmap_to_hector.py --full png/menu-text-new.png menu
 	python scripts/convert_bitmap_to_hector.py --full --last 231 png/cthulhu_splashscreen.png splash
 	python scripts/convert_bitmap_to_hector.py --full png/cthulhu_splash_small.png menubg
 	python scripts/convert_digits_to_hector.py png/font-cthulhu.png digit
