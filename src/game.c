@@ -832,7 +832,7 @@ void main()
             unsigned char key = key_in();
             if (key >= '1' && key <= '9')
             {
-                speed = key - '0';
+                speed = 10 - (key - '0');
                 break;
             }
         }
