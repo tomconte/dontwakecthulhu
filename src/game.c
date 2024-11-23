@@ -728,7 +728,9 @@ void init_level(void)
     while (virus_count < level_viruses)
     {
         x = rand() % BOARD_WIDTH;
-        y = BOARD_HEIGHT / 2 + (rand() % (BOARD_HEIGHT / 2));
+        // Place viruses in the bottom part of the board
+        // These values are for a 8x14 board
+        y = 4 + (rand() % 10);
         if (board[y * BOARD_WIDTH + x].color == EMPTY)
         {
             board[y * BOARD_WIDTH + x].color = VIRUS_RED + (rand() % 3);
