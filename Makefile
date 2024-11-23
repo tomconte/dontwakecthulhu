@@ -1,5 +1,5 @@
 SOURCES = 	src/game.c src/lib.asm \
-			build/pill_*.c build/virus_*.c build/digit_*.c build/cleared_*.c \
+			$(wildcard build/pill_*.c) $(wildcard build/virus_*.c) $(wildcard build/digit_*.c) $(wildcard build/cleared_*.c) \
 			build/background_left.c build/background_right.c build/background_btm.c \
 			build/gameover.c
 
