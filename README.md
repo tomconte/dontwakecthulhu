@@ -1,6 +1,6 @@
 # Don't Wake Cthulhu!
 
-This is a game for the Micronique Hector 2/HR micro computers.
+This is a game for the [Micronique Hector](https://en.wikipedia.org/wiki/Hector_(microcomputer)) 2/HR micro computers.
 
 ## Introduction
 
@@ -37,7 +37,7 @@ This will build two set of binaries in `build`; one for the Hector 2/HR line of 
 
 ## How to run
 
-The game was mostly tested with the VBHector emulator. To run the game, two possibilities:
+The game was mostly tested with the [VBHector](http://hectorvictor.free.fr/index.php?page=8ALh79=UoEsI) emulator. To run the game, two possibilities:
 
 - Start VBHector in HR or HRX mode, and load the `.k7` file.
 - Use the VBHector option to load a binary file; load it at address `0x6000`, with SP address at `0xc000`.
