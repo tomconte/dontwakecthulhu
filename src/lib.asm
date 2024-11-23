@@ -10,6 +10,9 @@ PUBLIC _draw_digit
 PUBLIC _draw_bitmap
 PUBLIC _decompress_menu
 PUBLIC _decompress_menubg
+PUBLIC _sound_move
+PUBLIC _sound_match
+PUBLIC _sound_fall
 
 ; -----------------------------------------------------------------------------
 ; ROM routines
@@ -35,6 +38,60 @@ _key_in:
     ld h, 0
     ld l, a
     ret
+
+_sound_move:
+    LD      L,3         ; mixer value for NOISE
+    LD      D,0x24      ; high byte of parameters
+    LD      E,0x00      ; low byte of parameters
+    JP     _sound
+
+_sound_match:
+    LD      L,1         ; mixer value for NOISE
+    LD      D,0x24      ; high byte of parameters
+    LD      E,0x00      ; low byte of parameters
+    JP     _sound
+
+_sound_fall:
+    LD      L,3         ; mixer value for NOISE
+    LD      D,0xA4      ; high byte of parameters
+    LD      E,0x11      ; low byte of parameters
+    JP     _sound
+
+_sound:
+    ; This is the SOUND implementation from the ROM
+    PUSH    BC          ; Save BC
+    LD      A,L         ; Get mixer value
+    AND     07H         ; Keep only 3 LSBs
+    LD      C,A         ; Store in C
+    
+    LD      A,40H       
+    LD      (2802H),A   ; Set INHIBIT
+    XOR     A           
+    LD      (2801H),A   ; Clear ONE-SHOT and AMPLITUDE
+    
+    LD      HL,0xFE92   ; Address for mixer parameters
+    LD      A,C         ; Get mixer value
+    XOR     (HL)        ; XOR with current value
+    AND     07H         ; Keep mixer bits
+    XOR     (HL)        ; XOR again
+    LD      (HL),A      ; Store back
+    LD      (3000H),A   ; Send to mixer
+    
+    LD      HL,2003H    ; Start address for bits 0-7
+    LD      A,E         ; Get LSB of parameters
+    CALL    SEND_BITS
+    
+    LD      HL,2803H    ; Start address for bits 8-15
+    LD      A,D         ; Get MSB of parameters
+    POP     BC
+    
+SEND_BITS:
+    LD      (HL),A      ; Send current bits
+    ADD     A           ; Shift left
+    ADD     A           ; Shift left again
+    DEC     L           ; Next address
+    JP      P,SEND_BITS ; Loop until L < 0
+    RET
 
 ; -----------------------------------------------------------------------------
 ; Wait for the next vertical sync (not used)

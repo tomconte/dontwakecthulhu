@@ -74,6 +74,9 @@ extern void draw_digit(const unsigned char *digit, unsigned char x, unsigned cha
 extern void draw_bitmap(const unsigned char *bitmap, unsigned char width, unsigned char height, unsigned char x, unsigned char y);
 extern void decompress_menu();
 extern void decompress_menubg();
+extern void sound_move();
+extern void sound_match();
+extern void sound_fall();
 
 // Array of pointers to bitmaps
 
@@ -392,6 +395,9 @@ void clear_lines(void)
                 }
             }
 
+            // Play sound effect
+            sound_match();
+
             // Render game so we can see the changed pills
             for (unsigned char i = 0; i < 15; i++)
             {
@@ -532,6 +538,13 @@ void clear_lines(void)
                         }
                     }
                 }
+
+                // Play sound if a piece fell
+                if (fell)
+                {
+                    sound_fall();
+                }
+
             } while (fell);
 
             chain++;
@@ -754,14 +767,17 @@ void game_loop(void)
 
         if (key == 'o' || key == 'O')
         { // Left arrow
+            sound_move();
             move_pill(-1, 0);
         }
         else if (key == 'p' || key == 'P')
         { // Right arrow
+            sound_move();
             move_pill(1, 0);
         }
         else if (key == 'e' || key == 'E')
         { // Down arrow
+            sound_move();
             if (!move_pill(0, 1))
             {
                 // Pill has landed
@@ -781,6 +797,7 @@ void game_loop(void)
         }
         else if (key == 'r' || key == 'R')
         { // Up arrow
+            sound_move();
             rotate_pill();
         }
 
