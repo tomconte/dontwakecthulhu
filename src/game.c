@@ -210,6 +210,7 @@ unsigned char next_pill_color1, next_pill_color2;
 unsigned char game_over;
 unsigned char current_pill_connection;
 unsigned char speed = 1;
+unsigned char game_speed = 1;
 
 // Helper function to check if two colors match (including virus-pill matches)
 unsigned char colors_match(unsigned char color1, unsigned char color2)
@@ -702,12 +703,21 @@ void generate_pill(void)
     {
         place_pill();
     }
+
+    // If the player spends too much time on a level, increase the speed
+    if (score > 0 && score % 1000 == 0 && speed > 1)
+    {
+        speed--;
+    }
 }
 
 // Initialize a level
 void init_level(void)
 {
     unsigned char x, y;
+
+    // Set initial speed
+    speed = game_speed;
 
     // Increment level
     level++;
@@ -851,7 +861,7 @@ void main()
             unsigned char key = key_in();
             if (key >= '1' && key <= '9')
             {
-                speed = 10 - (key - '0');
+                game_speed = 10 - (key - '0');
                 break;
             }
         }
