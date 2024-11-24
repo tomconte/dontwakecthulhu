@@ -732,9 +732,9 @@ void init_level(void)
         }
     }
 
-    // Place viruses
+    // Place viruses; increase difficulty with level: 4 additional viruses per level
     virus_count = 0;
-    unsigned char level_viruses = 3 + (2 * (score / 1000)); // Increase difficulty with score
+    unsigned char level_viruses = 4 * level;
     while (virus_count < level_viruses)
     {
         x = rand() % BOARD_WIDTH;
